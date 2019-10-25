@@ -6,7 +6,7 @@ import numpy as np
 
 # Time step
 T = 100
-dt = 0.1
+dt = 1.5
 N = int(T/dt)
 t = np.linspace(0,N*dt,N)
 
@@ -41,10 +41,13 @@ def max_amplitude(freq):
     for p in range(2,N):
         F = [Force*np.cos(freq*p*dt),0,0]
         a[p] = np.matmul(np.linalg.inv(M), F - np.matmul(K, x[p-1]) - np.matmul(H, v[p-1])) 
-        x[p] = 2 * x[p-1] - x[p-2] + dt * dt * a[p]
-        v[p] = (x[p] - x[p-1])/dt
-
+        v[p] = v[p-1]+a[p]*dt
+        x[p] = x[p-1]+v[p]*dt
+        
     max_amp= [ max(x[int(len(x)*0.8):,floor]) for floor in range(3) ] 
+    if abs(freq-1.0)<0.1:
+        plt.plot(range(N),x[:,0])
+        plt.show()
     return max_amp
 
 freq_sweep = np.linspace(0.1,3,30)
