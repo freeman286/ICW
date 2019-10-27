@@ -1,8 +1,6 @@
-import numpy as np
-import matplotlib.pyplot as plt
-
 # Python code to simulate buildings in earthquakes
 import numpy as np
+import matplotlib.pyplot as plt
 
 # Time step
 T = 100

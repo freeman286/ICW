@@ -1,8 +1,9 @@
+# Python code to simulate buildings in earthquakes
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Python code to simulate buildings in earthquakes
-import numpy as np
+# Mode
+mode = "freq"
 
 # Time step
 T = 100
@@ -36,31 +37,38 @@ x[0],x[1] =[0,0,0],[0,0,0]
 v[0],v[1] =[0,0,0],[0,0,0]
 
 
-
-def max_amplitude(freq):
+def run(freq=0):
     for p in range(2,N):
-        F = [Force*np.cos(freq*p*dt),0,0]
+        if mode == "freq":
+            F = [Force*np.cos(freq*p*dt),0,0]
+        elif mode == "imp" and p == 2:
+            F = [1/dt,0,0]
         a[p] = np.matmul(np.linalg.inv(M), F - np.matmul(K, x[p-1]) - np.matmul(H, v[p-1])) 
         x[p] = 2 * x[p-1] - x[p-2] + dt * dt * a[p]
         v[p] = (x[p] - x[p-1])/dt
 
-    max_amp= [ max(x[int(len(x)*0.8):,floor]) for floor in range(3) ] 
+
+def max_amplitude(freq):
+    run(freq)
+    max_amp = [ max(x[int(len(x)*0.8):,floor]) for floor in range(3) ] 
     return max_amp
 
-freq_sweep = np.linspace(0.1,3,30)
-print(freq_sweep)
-response = np.array([ max_amplitude(freq) for freq in freq_sweep])
+if mode == "freq":
+    freq_sweep = np.linspace(0.1,3,30)
+    response = np.array([ max_amplitude(freq) for freq in freq_sweep])
 
-plt.plot(freq_sweep,response[:,0],label = 'floor1')
-plt.plot(freq_sweep,response[:,1],label = 'floor2')
-plt.plot(freq_sweep,response[:,2],label = 'damper')
-plt.legend()
-plt.show()
-
-
-
-
-
+    lines = plt.plot(freq_sweep,response)
+    plt.legend(lines, ('floor1', 'floor2', 'damper'))
+    plt.xlabel('Frequency (Hz)', fontsize=10)
+    plt.ylabel('Amplitude (m)', fontsize=10)
+    plt.show()
+elif mode == "imp":
+    run()
+    lines = plt.plot(t, x)
+    plt.legend(lines, ('floor1', 'floor2', 'damper'))
+    plt.xlabel('Time (s)', fontsize=10)
+    plt.ylabel('Amplitude (m)', fontsize=10)
+    plt.show()
 
 
 
